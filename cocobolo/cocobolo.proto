@@ -1,0 +1,28 @@
+// Cocobolo service defination
+
+syntax = "proto3";
+
+package cocobolo;
+
+service Cocobolo {
+    // Makes a request
+    rpc MakeRequest (stream CallbackRequest) returns (stream CallbackResponse) {}
+}
+    
+message CallbackRequest {
+    string URL = 1;
+    string method = 2;
+    string body = 3;
+    string type = 4;
+    string backoff_time = 5;
+    string request_id = 6;
+    string headers = 7;
+}
+
+message CallbackResponse {
+    string request_id = 1;
+    string status_code = 2;
+    string response = 3;
+    string headers = 4;
+    string backoff_time = 5;
+}
