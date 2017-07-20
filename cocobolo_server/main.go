@@ -41,6 +41,12 @@ func (s *cocoboloServer) MakeRequest(stream pb.Cocobolo_MakeRequestServer) error
 		// goroutine. Send response back from the goroutine
 
 		go func(in pb.CallbackRequest) {
+
+			// TODO: Check for backoff time
+			// Based on the backoff time, write logic
+			// to retry request in case of a non 2XX response
+			// from the server
+
 			c := &http.Client{
 				Timeout: 15 * time.Second,
 			}
@@ -58,7 +64,11 @@ func (s *cocoboloServer) MakeRequest(stream pb.Cocobolo_MakeRequestServer) error
 
 			log.Printf(bodyString)
 
+			// Create a full callback response object
+			// which can be passed back on the channel
+
 			response := &pb.CallbackResponse{RequestId: in.RequestId, Response: bodyString}
+
 			messages <- response
 
 		}(*in)
