@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -33,8 +33,6 @@ func (s *cocoboloServer) MakeRequest(stream pb.Cocobolo_MakeRequestServer) error
 			return err
 		}
 
-		fmt.Println(in.URL)
-
 		messages := make(chan *pb.CallbackResponse)
 
 		// Parse input and make HTTP request in a
@@ -52,17 +50,17 @@ func (s *cocoboloServer) MakeRequest(stream pb.Cocobolo_MakeRequestServer) error
 			}
 			resp, err := c.Get(in.URL)
 			if err != nil {
-				log.Fatalf("Could not make request")
+				log.Fatal("Could not make request")
 			}
 
 			bodyBytes, err2 := ioutil.ReadAll(resp.Body)
 			if err2 != nil {
-				log.Fatalf("Could not read body")
+				log.Fatal("Could not read body")
 			}
 
 			bodyString := string(bodyBytes)
 
-			log.Printf(bodyString)
+			log.Info(bodyString)
 
 			// Create a full callback response object
 			// which can be passed back on the channel
@@ -76,7 +74,7 @@ func (s *cocoboloServer) MakeRequest(stream pb.Cocobolo_MakeRequestServer) error
 		response := <-messages
 
 		if err := stream.Send(response); err != nil {
-			log.Fatalf("Could not send response. %v", err)
+			log.Fatal("Could not send response. %v", err)
 		}
 	}
 }
@@ -94,6 +92,6 @@ func main() {
 	reflection.Register(s)
 
 	if err := s.Serve(lis); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		log.Fatal("failed to serve: %v", err)
 	}
 }
