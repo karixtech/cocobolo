@@ -10,7 +10,7 @@ import (
 	cbmock "github.com/tsudot/cocobolo/mock_cocobolo"
 )
 
-var msg = &cbpb.CallbackRequest{
+var callbackRequest = &cbpb.CallbackRequest{
 	URL:       "http://tsudot.com/",
 	Method:    "GET",
 	RequestId: "1",
@@ -26,7 +26,7 @@ func TestCocobolo(t *testing.T) {
 
 	stream := cbmock.NewMockCocobolo_MakeRequestClient(ctrl)
 
-	stream.EXPECT().Send(msg).Return(nil)
+	stream.EXPECT().Send(callbackRequest).Return(nil)
 
 	stream.EXPECT().Recv().Return(callbackResponse, nil)
 
@@ -50,7 +50,7 @@ func testCocobolo(client cbpb.CocoboloClient) error {
 		return err
 	}
 
-	if err := stream.Send(msg); err != nil {
+	if err := stream.Send(callbackRequest); err != nil {
 		return err
 	}
 
