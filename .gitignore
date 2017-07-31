@@ -61,4 +61,6 @@ Session.vim
 # Auto-generated tag files
 tags
 
-
+# Glide
+glide.lock
+vendor
