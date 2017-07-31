@@ -3,11 +3,13 @@ package main
 import (
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"net/http"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	// log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -22,6 +24,13 @@ const (
 type cocoboloServer struct{}
 
 func (s *cocoboloServer) MakeRequest(stream pb.Cocobolo_MakeRequestServer) error {
+	logger, err := zap.NewProduction()
+
+	if err != nil {
+		log.Fatalf("can't initialize zap logger: %v", err)
+	}
+	defer logger.Sync()
+
 	for {
 		in, err := stream.Recv()
 
@@ -44,23 +53,24 @@ func (s *cocoboloServer) MakeRequest(stream pb.Cocobolo_MakeRequestServer) error
 			// Based on the backoff time, write logic
 			// to retry request in case of a non 2XX response
 			// from the server
+			logger.Info("Fetching", zap.String("endpoint", in.Endpoint))
 
 			c := &http.Client{
 				Timeout: 15 * time.Second,
 			}
-			resp, err := c.Get(in.URL)
+			resp, err := c.Get(in.Endpoint)
 			if err != nil {
-				log.Fatal("Could not make request")
+				logger.Fatal("Could not make request", zap.Error(err))
 			}
 
 			bodyBytes, err2 := ioutil.ReadAll(resp.Body)
 			if err2 != nil {
-				log.Fatal("Could not read body")
+				logger.Fatal("Could not read body")
 			}
 
 			bodyString := string(bodyBytes)
 
-			log.Info(bodyString)
+			//logger.Info(bodyString)
 
 			// Create a full callback response object
 			// which can be passed back on the channel
@@ -74,16 +84,23 @@ func (s *cocoboloServer) MakeRequest(stream pb.Cocobolo_MakeRequestServer) error
 		response := <-messages
 
 		if err := stream.Send(response); err != nil {
-			log.Fatal("Could not send response. %v", err)
+			logger.Fatal("Could not send response", zap.Error(err))
 		}
 	}
 }
 
 func main() {
+	logger, err := zap.NewProduction()
+
+	if err != nil {
+		log.Fatalf("can't initialize zap logger: %v", err)
+	}
+	defer logger.Sync()
+
 	lis, err := net.Listen("tcp", port)
 
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		logger.Fatal("failed to listen:", zap.Error(err))
 	}
 
 	s := grpc.NewServer()
@@ -92,6 +109,6 @@ func main() {
 	reflection.Register(s)
 
 	if err := s.Serve(lis); err != nil {
-		log.Fatal("failed to serve: %v", err)
+		logger.Fatal("failed to serve:", zap.Error(err))
 	}
 }

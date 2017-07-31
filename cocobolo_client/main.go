@@ -27,13 +27,14 @@ func main() {
 	client := pb.NewCocoboloClient(conn)
 
 	requests := []*pb.CallbackRequest{
-		{URL: "https://google.com", Method: "GET", RequestId: "1"},
-		{URL: "https://reddit.com", Method: "GET", RequestId: "2"},
+		{Endpoint: "https://google.com", Method: "GET", RequestId: "1"},
+		{Endpoint: "https://reddit.com", Method: "GET", RequestId: "2"},
 	}
 
 	stream, err := client.MakeRequest(context.Background())
 
 	waitc := make(chan struct{})
+
 	go func() {
 		for {
 			in, err := stream.Recv()

@@ -10,13 +10,12 @@ service Cocobolo {
 }
     
 message CallbackRequest {
-    string URL = 1;
-    string method = 2;
-    string body = 3;
-    string type = 4;
-    string backoff_time = 5;
-    string request_id = 6;
-    string headers = 7;
+    string request_id = 1;
+    string endpoint = 2;
+    string method = 3;
+    string body = 4;
+    string headers = 5;
+    string backoff_time = 6;
 }
 
 message CallbackResponse {
