@@ -12,16 +12,17 @@ Some key features of this service are:
 
 ## Payload
 
+```
     /request
+```
 
 
 - request_id
-- URL
+- endpoint
 - method
-- request_body
-- request_type
-- backoff_time
+- body
 - headers
+- backoff_time
 
 
 ```
@@ -31,11 +32,7 @@ Some key features of this service are:
 
 
 - request_id
-- URL
-- method
 - status_code
-- response_body
+- response
+- headers
 - backoff_time
-- response_headers
-- request_headers
-
