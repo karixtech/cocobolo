@@ -11,7 +11,7 @@ import (
 )
 
 var callbackRequest = &cbpb.CallbackRequest{
-	URL:       "http://tsudot.com/",
+	Endpoint:  "http://tsudot.com/",
 	Method:    "GET",
 	RequestId: "1",
 }
